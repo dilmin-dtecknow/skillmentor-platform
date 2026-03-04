@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.dilmin.skill_mentor_backend.constants.SessionStatus.STATUS_COMPLETED;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -198,6 +200,44 @@ public class SessionServiceImpl implements SessionService {
 
     public List<Session> getSessionsByStudentEmail(String email) {
         return sessionRepository.findByStudent_Email(email);
+    }
+
+    @Override
+    public Session confirmPayment(Long sessionId) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SkillMentorException(
+                        "Session not found",
+                        HttpStatus.NOT_FOUND
+                ));
+
+        session.setPaymentStatus("confirmed");
+
+        return sessionRepository.save(session);
+    }
+
+    @Override
+    public Session markSessionCompleted(Long sessionId) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SkillMentorException(
+                        "Session not found",
+                        HttpStatus.NOT_FOUND
+                ));
+
+        session.setSessionStatus(STATUS_COMPLETED);
+        return sessionRepository.save(session);
+    }
+
+    @Override
+    public Session addMeetingLink(Long sessionId, String meetingLink) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SkillMentorException(
+                        "Session not found",
+                        HttpStatus.NOT_FOUND
+                ));
+
+        session.setMeetingLink(meetingLink);
+
+        return sessionRepository.save(session);
     }
 
 }

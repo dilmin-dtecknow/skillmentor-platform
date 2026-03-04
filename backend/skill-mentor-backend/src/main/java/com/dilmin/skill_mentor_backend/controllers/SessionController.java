@@ -71,6 +71,39 @@ public class SessionController extends AbstractController {
         return sendOkResponse(response);
     }
 
+    //Confirm Payment
+    @PatchMapping("/{id}/confirm-payment")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Session> confirmPayment(@PathVariable Long id) {
+
+        Session session = sessionService.confirmPayment(id);
+
+        return sendOkResponse(session);
+    }
+
+    //Mark Completed
+    @PatchMapping("/{id}/complete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Session> markCompleted(@PathVariable Long id) {
+
+        Session session = sessionService.markSessionCompleted(id);
+
+        return sendOkResponse(session);
+    }
+
+    //Add Meeting Link
+    @PatchMapping("/{id}/meeting-link")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Session> addMeetingLink(
+            @PathVariable Long id,
+            @RequestParam String meetingLink
+    ) {
+
+        Session session = sessionService.addMeetingLink(id, meetingLink);
+
+        return sendOkResponse(session);
+    }
+
     private SessionResponseDTO toSessionResponseDTO(Session session) {
         SessionResponseDTO dto = new SessionResponseDTO();
         dto.setId(session.getId());

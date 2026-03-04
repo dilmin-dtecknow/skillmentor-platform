@@ -17,4 +17,10 @@ public interface SessionService {
     // Frontend enrollment flow — student is resolved from the Clerk JWT
     Session enrollSession(UserPrincipal userPrincipal, SessionDTO sessionDTO);
     List<Session> getSessionsByStudentEmail(String email);
+
+    Session confirmPayment(Long sessionId);
+
+    Session markSessionCompleted(Long sessionId);
+
+    Session addMeetingLink(Long sessionId, String meetingLink);
 }
