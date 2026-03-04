@@ -45,6 +45,9 @@ public class SessionServiceImpl implements SessionService {
                     () -> new SkillMentorException("Subject not found", HttpStatus.NOT_FOUND)
             );
 
+            // Validate session date
+            ValidationUtils.validateSessionDate(sessionDTO.getSessionAt());
+
             // Checking availability
             ValidationUtils.validateMentorAvailability(mentor, sessionDTO.getSessionAt(), sessionDTO.getDurationMinutes());
             ValidationUtils.validateStudentAvailability(student, sessionDTO.getSessionAt(), sessionDTO.getDurationMinutes());

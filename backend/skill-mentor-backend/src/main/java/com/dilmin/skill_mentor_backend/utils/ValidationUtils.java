@@ -80,4 +80,16 @@ public class ValidationUtils {
         calendar.add(Calendar.MINUTE, minutes);
         return calendar.getTime();
     }
+
+    public static void validateSessionDate(Date sessionAt) {
+
+        Date now = new Date();
+
+        if (sessionAt.before(now)) {
+            throw new SkillMentorException(
+                    "Cannot book a session in the past",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
 }
