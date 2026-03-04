@@ -157,6 +157,33 @@ public class SessionServiceImpl implements SessionService {
         Subject subject = subjectRepository.findById(sessionDTO.getSubjectId())
                 .orElseThrow(() -> new RuntimeException("Subject not found with id: " + sessionDTO.getSubjectId()));
 
+//        Past Date Validation
+        ValidationUtils.validateSessionDate(sessionDTO.getSessionAt());
+
+        //check availability
+        ValidationUtils.validateMentorAvailability(
+                mentor,
+                sessionDTO.getSessionAt(),
+                sessionDTO.getDurationMinutes()
+        );
+
+        ValidationUtils.validateStudentAvailability(
+                student,
+                sessionDTO.getSessionAt(),
+                sessionDTO.getDurationMinutes()
+        );
+
+        // 3️⃣ Prevent duplicate booking
+        boolean alreadyBooked = sessionRepository.existsByStudentAndMentorAndSessionAt(
+                student,
+                mentor,
+                sessionDTO.getSessionAt()
+        );
+
+        if (alreadyBooked) {
+            throw new SkillMentorException("Session already booked", HttpStatus.CONFLICT);
+        }
+
         Session session = new Session();
         session.setStudent(student);
         session.setMentor(mentor);
