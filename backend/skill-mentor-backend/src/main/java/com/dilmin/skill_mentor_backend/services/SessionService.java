@@ -23,4 +23,5 @@ public interface SessionService {
     Session markSessionCompleted(Long sessionId);
 
     Session addMeetingLink(Long sessionId, String meetingLink);
+    Session addReview(Long sessionId, String review, Integer rating);
 }

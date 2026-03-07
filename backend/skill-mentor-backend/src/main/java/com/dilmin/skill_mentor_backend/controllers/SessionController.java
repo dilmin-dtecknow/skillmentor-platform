@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.dilmin.skill_mentor_backend.constants.UserRoles.ROLE_ADMIN;
+import static com.dilmin.skill_mentor_backend.constants.UserRoles.ROLE_MENTOR;
+
 @RestController
 @RequestMapping(path = "/api/v1/sessions")
 @RequiredArgsConstructor
@@ -73,17 +76,14 @@ public class SessionController extends AbstractController {
 
     //Confirm Payment
     @PatchMapping("/{id}/confirm-payment")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Session> confirmPayment(@PathVariable Long id) {
-
-        Session session = sessionService.confirmPayment(id);
-
-        return sendOkResponse(session);
+    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
+    public Session confirmPayment(@PathVariable Long id) {
+        return  sessionService.confirmPayment(id);
     }
 
     //Mark Completed
     @PatchMapping("/{id}/complete")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
     public ResponseEntity<Session> markCompleted(@PathVariable Long id) {
 
         Session session = sessionService.markSessionCompleted(id);
@@ -93,13 +93,25 @@ public class SessionController extends AbstractController {
 
     //Add Meeting Link
     @PatchMapping("/{id}/meeting-link")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
     public ResponseEntity<Session> addMeetingLink(
             @PathVariable Long id,
             @RequestParam String meetingLink
     ) {
 
         Session session = sessionService.addMeetingLink(id, meetingLink);
+
+        return sendOkResponse(session);
+    }
+
+    @PatchMapping("/{id}/review")
+    public ResponseEntity<Session> addReview(
+            @PathVariable Long id,
+            @RequestParam String review,
+            @RequestParam Integer rating
+    ) {
+
+        Session session = sessionService.addReview(id, review, rating);
 
         return sendOkResponse(session);
     }

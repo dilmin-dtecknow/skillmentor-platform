@@ -240,4 +240,33 @@ public class SessionServiceImpl implements SessionService {
         return sessionRepository.save(session);
     }
 
+    @Override
+    public Session addReview(Long sessionId, String review, Integer rating) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SkillMentorException(
+                        "Session not found",
+                        HttpStatus.NOT_FOUND
+                ));
+
+        // only allow review if session completed
+        if (!session.getSessionStatus().equals("completed")) {
+            throw new SkillMentorException(
+                    "Review can only be added after session completion",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        if (rating < 1 || rating > 5) {
+            throw new SkillMentorException(
+                    "Rating must be between 1 and 5",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        session.setStudentReview(review);
+        session.setStudentRating(rating);
+
+        return sessionRepository.save(session);
+    }
+
 }
