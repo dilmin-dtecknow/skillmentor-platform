@@ -76,14 +76,14 @@ public class SessionController extends AbstractController {
 
     //Confirm Payment
     @PatchMapping("/{id}/confirm-payment")
-    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     public Session confirmPayment(@PathVariable Long id) {
         return  sessionService.confirmPayment(id);
     }
 
     //Mark Completed
     @PatchMapping("/{id}/complete")
-    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     public ResponseEntity<Session> markCompleted(@PathVariable Long id) {
 
         Session session = sessionService.markSessionCompleted(id);
@@ -93,7 +93,7 @@ public class SessionController extends AbstractController {
 
     //Add Meeting Link
     @PatchMapping("/{id}/meeting-link")
-    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     public ResponseEntity<Session> addMeetingLink(
             @PathVariable Long id,
             @RequestParam String meetingLink
