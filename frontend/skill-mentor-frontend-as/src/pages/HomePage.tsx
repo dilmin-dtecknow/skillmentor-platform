@@ -3,13 +3,18 @@ import { MentorCard } from "@/components/MentorCard";
 import { getPublicMentors } from "@/lib/api";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import type { Mentor } from "@/types";
 
 export default function HomePage() {
   const { isSignedIn } = useAuth();
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { user } = useUser();
+
+  const dashboardPath =
+    user?.publicMetadata?.role === "ADMIN" ? "/admin/bookings" : "/dashboard";
 
   useEffect(() => {
     getPublicMentors()
@@ -33,7 +38,7 @@ export default function HomePage() {
         </div>
 
         {isSignedIn ? (
-          <Link to="/dashboard">
+          <Link to={dashboardPath}>
             <Button size="lg" className="text-xl">
               Go to Dashboard
             </Button>

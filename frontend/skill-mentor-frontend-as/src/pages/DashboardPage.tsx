@@ -4,34 +4,55 @@ import { CalendarDays } from "lucide-react";
 import { StatusPill } from "@/components/StatusPill";
 import { getMyEnrollments } from "@/lib/api";
 import type { Enrollment } from "@/types";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const { user } = useUser();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const router = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isLoaded) return;
+
+    if (!isSignedIn) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    const role = user?.publicMetadata?.role;
+    if (role === "admin") {
+      navigate("/admin/bookings", { replace: true });
+      return;
+    }
+
     async function fetchEnrollments() {
-      if (!user) return;
-      const token = await getToken({ template: "skill-mentor" });
-      if (!token) return;
       try {
-        console.log("Fetching enrollments with token:", token);
+        setLoading(true);
+
+        // Make sure this template name matches Clerk JWT template exactly
+        const token = await getToken({ template: "skill-mentor" });
+
+        if (!token) {
+          console.error("No Clerk token found");
+          setLoading(false);
+          return;
+        }
+
         const data = await getMyEnrollments(token);
         setEnrollments(data);
       } catch (err) {
         console.error("Failed to fetch enrollments", err);
+      } finally {
+        setLoading(false);
       }
     }
 
-    if (isLoaded && isSignedIn) {
-      fetchEnrollments();
-    }
-  }, [isLoaded, isSignedIn, getToken, user]);
+    fetchEnrollments();
+  }, [isLoaded, isSignedIn, getToken, user, navigate]);
 
-  if (!isLoaded) {
+  if (!isLoaded || loading) {
     return (
       <div className="container py-10">
         <div className="flex items-center justify-center">
@@ -39,11 +60,6 @@ export default function DashboardPage() {
         </div>
       </div>
     );
-  }
-
-  if (!isSignedIn) {
-    router("/login");
-    return null;
   }
 
   if (!enrollments.length) {
@@ -64,12 +80,10 @@ export default function DashboardPage() {
             key={enrollment.id}
             className="rounded-2xl p-6 relative overflow-hidden bg-linear-to-br from-blue-500 to-blue-600"
           >
-            {/* Status Pill */}
             <div className="absolute top-4 right-4">
               <StatusPill status={enrollment.paymentStatus} />
             </div>
 
-            {/* Profile Image */}
             <div className="size-24 rounded-full bg-white/10 mb-4">
               {enrollment.mentorProfileImageUrl ? (
                 <img
@@ -84,7 +98,6 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Course Info */}
             <div className="space-y-1">
               <h2 className="text-xl font-semibold text-white">
                 {enrollment.subjectName}
@@ -94,8 +107,7 @@ export default function DashboardPage() {
               </p>
               <div className="flex items-center text-blue-100/80 text-sm mt-2">
                 <CalendarDays className="mr-2 h-4 w-4" />
-                Next Session:{" "}
-                {new Date(enrollment.sessionAt).toLocaleDateString()}
+                Next Session: {new Date(enrollment.sessionAt).toLocaleDateString()}
               </div>
             </div>
           </div>

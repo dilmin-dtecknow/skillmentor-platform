@@ -63,7 +63,7 @@ export default function LoginPage() {
       <div className="flex w-full items-center justify-center px-6 lg:w-1/2">
         <div className="w-full max-w-[400px] space-y-8">
           <SignUp
-            forceRedirectUrl="/dashboard"
+            forceRedirectUrl="/redirect-after-auth"
             appearance={{
               elements: {
                 formButtonPrimary: "bg-primary",

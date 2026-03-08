@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
-import { useAuth, SignInButton, UserButton } from "@clerk/clerk-react";
+import { useAuth, SignInButton, UserButton, useUser } from "@clerk/clerk-react";
 import SkillMentorLogo from "@/assets/logo.webp";
 import { Menu } from "lucide-react";
 import { useState } from "react";
@@ -10,6 +10,9 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 export function Navigation() {
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useUser();
+  const dashboardPath =
+    user?.publicMetadata?.role === "ADMIN" ? "/admin/bookings" : "/dashboard";
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
     <nav
@@ -52,7 +55,7 @@ export function Navigation() {
       {isSignedIn ? (
         <>
           <Link
-            to="/dashboard"
+            to={dashboardPath}
             className={cn(mobile && "w-full")}
             onClick={() => mobile && setIsOpen(false)}
           >
