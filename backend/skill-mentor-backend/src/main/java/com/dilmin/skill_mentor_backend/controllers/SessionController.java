@@ -127,6 +127,8 @@ public class SessionController extends AbstractController {
         dto.setSessionStatus(session.getSessionStatus());
         dto.setPaymentStatus(session.getPaymentStatus());
         dto.setMeetingLink(session.getMeetingLink());
+        dto.setStudentReview(session.getStudentReview());
+        dto.setStudentRating(session.getStudentRating());
         return dto;
     }
 }
