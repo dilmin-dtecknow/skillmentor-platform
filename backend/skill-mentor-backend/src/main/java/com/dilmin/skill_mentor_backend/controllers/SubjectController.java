@@ -21,11 +21,13 @@ public class SubjectController {
     private final SubjectService subjectService;
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     public List<Subject> getAllSubjects() {
         return subjectService.getAllSubjects();
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("permitAll()")
     public Subject getSubjectById(@PathVariable Long id) {
         return subjectService.getSubjectById(id);
     }

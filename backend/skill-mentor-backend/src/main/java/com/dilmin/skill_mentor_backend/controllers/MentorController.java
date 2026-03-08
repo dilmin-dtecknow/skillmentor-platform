@@ -1,6 +1,7 @@
 package com.dilmin.skill_mentor_backend.controllers;
 
 import com.dilmin.skill_mentor_backend.dto.MentorDTO;
+import com.dilmin.skill_mentor_backend.dto.response.MentorProfileResponseDTO;
 import com.dilmin.skill_mentor_backend.entities.Mentor;
 import com.dilmin.skill_mentor_backend.security.UserPrincipal;
 import com.dilmin.skill_mentor_backend.services.MentorService;
@@ -35,9 +36,15 @@ public class MentorController extends AbstractController {
         return sendOkResponse(mentors);
     }
 
+//    @GetMapping("{id}")
+//    public ResponseEntity<Mentor> getMentorById(@PathVariable Long id) {
+//        Mentor mentor = mentorService.getMentorById(id);
+//        return sendOkResponse(mentor);
+//    }
+
     @GetMapping("{id}")
-    public ResponseEntity<Mentor> getMentorById(@PathVariable Long id) {
-        Mentor mentor = mentorService.getMentorById(id);
+    public ResponseEntity<MentorProfileResponseDTO> getMentorById(@PathVariable Long id) {
+        MentorProfileResponseDTO mentor = mentorService.getMentorProfileById(id);
         return sendOkResponse(mentor);
     }
 
