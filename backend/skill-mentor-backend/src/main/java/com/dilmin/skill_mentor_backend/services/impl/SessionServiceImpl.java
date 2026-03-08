@@ -249,7 +249,7 @@ public class SessionServiceImpl implements SessionService {
                 ));
 
         // only allow review if session completed
-        if (!session.getSessionStatus().equals("completed")) {
+        if (!"completed".equalsIgnoreCase(session.getSessionStatus())) {
             throw new SkillMentorException(
                     "Review can only be added after session completion",
                     HttpStatus.BAD_REQUEST
