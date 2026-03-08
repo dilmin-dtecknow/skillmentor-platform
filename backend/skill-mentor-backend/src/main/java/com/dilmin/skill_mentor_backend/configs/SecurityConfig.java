@@ -20,6 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import static com.dilmin.skill_mentor_backend.constants.UserRoles.ROLE_ADMIN;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -57,8 +59,11 @@ public class SecurityConfig {
                         // Admin only endpoints
                         .requestMatchers(
                                 "/api/v1/subjects/**",
-                                "/api/v1/admin/**"
-                        ).hasRole("ADMIN")
+                                "/api/v1/admin/**",
+                                "/api/v1/sessions/*/confirm-payment",
+                                "/api/v1/sessions/*/confirm-payment",
+                                "/api/v1/sessions/*/meeting-link"
+                        ).hasRole(ROLE_ADMIN)
                         .anyRequest().authenticated()
                 )
             .addFilterBefore(clerkAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
