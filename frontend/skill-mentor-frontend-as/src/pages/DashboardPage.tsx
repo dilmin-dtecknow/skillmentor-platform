@@ -1,39 +1,40 @@
 import { useEffect, useState } from "react";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import { CalendarDays } from "lucide-react";
 import { StatusPill } from "@/components/StatusPill";
 import { getMyEnrollments } from "@/lib/api";
 import type { Enrollment } from "@/types";
 import { useNavigate } from "react-router-dom";
+import { isAdminFromToken } from "@/lib/auth";
 
 export default function DashboardPage() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
-  const { user } = useUser();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoaded) return;
+    async function initPage() {
+      if (!isLoaded) return;
 
-    if (!isSignedIn) {
-      navigate("/login", { replace: true });
-      return;
-    }
+      if (!isSignedIn) {
+        navigate("/login", { replace: true });
+        return;
+      }
 
-    const role = user?.publicMetadata?.role;
-    if (role === "admin") {
-      navigate("/admin/bookings", { replace: true });
-      return;
-    }
+      const admin = await isAdminFromToken(getToken);
 
-    async function fetchEnrollments() {
+      if (admin) {
+        navigate("/admin/bookings", { replace: true });
+        return;
+      }
+
       try {
         setLoading(true);
 
-        // Make sure this template name matches Clerk JWT template exactly
         const token = await getToken({ template: "skill-mentor" });
 
+        console.log("Clerk token:", token);
         if (!token) {
           console.error("No Clerk token found");
           setLoading(false);
@@ -49,8 +50,8 @@ export default function DashboardPage() {
       }
     }
 
-    fetchEnrollments();
-  }, [isLoaded, isSignedIn, getToken, user, navigate]);
+    initPage();
+  }, [isLoaded, isSignedIn, getToken, navigate]);
 
   if (!isLoaded || loading) {
     return (

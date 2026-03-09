@@ -1,18 +1,31 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
-import { useAuth, SignInButton, UserButton, useUser } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
+import { useAuth, SignInButton, UserButton } from "@clerk/clerk-react";
 import SkillMentorLogo from "@/assets/logo.webp";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { isAdminFromToken } from "@/lib/auth";
 
 export function Navigation() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken, isLoaded } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useUser();
-  const dashboardPath =
-    user?.publicMetadata?.role === "ADMIN" ? "/admin/bookings" : "/dashboard";
+  const [dashboardPath, setDashboardPath] = useState("/dashboard");
+
+  useEffect(() => {
+    async function resolveRole() {
+      if (!isLoaded || !isSignedIn) {
+        setDashboardPath("/dashboard");
+        return;
+      }
+
+      const admin = await isAdminFromToken(getToken);
+      setDashboardPath(admin ? "/admin/bookings" : "/dashboard");
+    }
+
+    resolveRole();
+  }, [isLoaded, isSignedIn, getToken]);
 
   const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
     <nav
@@ -81,7 +94,7 @@ export function Navigation() {
       ) : (
         <>
           <SignInButton
-            forceRedirectUrl="/dashboard"
+            forceRedirectUrl="/redirect-after-auth"
             mode="modal"
             appearance={{
               elements: {
@@ -93,6 +106,7 @@ export function Navigation() {
               Login
             </Button>
           </SignInButton>
+
           <Link to="/login">
             <Button
               className={cn(
@@ -125,12 +139,10 @@ export function Navigation() {
           </div>
         </div>
 
-        {/* Desktop Auth Buttons */}
         <div className="hidden md:block">
           <AuthButtons />
         </div>
 
-        {/* Mobile Menu */}
         <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="border-primary">

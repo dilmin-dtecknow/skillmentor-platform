@@ -14,7 +14,7 @@ export default function HomePage() {
   const { user } = useUser();
 
   const dashboardPath =
-    user?.publicMetadata?.role === "ADMIN" ? "/admin/bookings" : "/dashboard";
+    user?.publicMetadata?.roles === "ADMIN" ? "/admin/bookings" : "/dashboard";
 
   useEffect(() => {
     getPublicMentors()
