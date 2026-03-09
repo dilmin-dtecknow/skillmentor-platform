@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
+import AlertMessage from "@/components/AlertMessage";
 
 interface Booking {
   id: number;
@@ -18,6 +19,9 @@ export default function ManageBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const fetchBookings = async () => {
     try {
       const token = await getToken({ template: "skill-mentor" });
@@ -29,35 +33,57 @@ export default function ManageBookingsPage() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to fetch bookings");
+      const data = await res.json().catch(() => null);
 
-      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Failed to fetch bookings");
+
+      // const data = await res.json();
       setBookings(data);
+      setSuccessMessage(data?.message || "Bookings fetched successfully!");
     } catch (error) {
       console.error(error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to fetch bookings",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const updateBooking = async (id: number, action: "confirm-payment" | "complete") => {
+  const updateBooking = async (
+    id: number,
+    action: "confirm-payment" | "complete",
+  ) => {
     try {
+      setSuccessMessage("");
+      setErrorMessage("");
+
       const token = await getToken({ template: "skill-mentor" });
       if (!token) throw new Error("No token found");
 
-      const res = await fetch(`http://localhost:8080/api/v1/sessions/${id}/${action}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `http://localhost:8080/api/v1/sessions/${id}/${action}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
-      if (!res.ok) throw new Error("Failed to update booking");
+      const data = await res.json().catch(() => null);
 
+      if (!res.ok) throw new Error(data?.message || "Failed to update booking");
+
+      setSuccessMessage(
+        action === "confirm-payment"
+          ? "Payment confirmed successfully!"
+          : "Session marked as completed!",
+      );
       fetchBookings();
     } catch (error) {
       console.error(error);
-      alert("Action failed");
+      setErrorMessage(error instanceof Error ? error.message : "Action failed");
     }
   };
 
@@ -72,6 +98,11 @@ export default function ManageBookingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Manage Bookings</h1>
+
+      <div className="space-y-3 mb-4">
+        <AlertMessage type="success" message={successMessage} />
+        <AlertMessage type="error" message={errorMessage} />
+      </div>
 
       <div className="overflow-x-auto">
         <table className="w-full border rounded-xl overflow-hidden">

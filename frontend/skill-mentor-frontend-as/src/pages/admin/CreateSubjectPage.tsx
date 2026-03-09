@@ -5,6 +5,7 @@ import type { Mentor } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import AlertMessage from "@/components/AlertMessage";
 
 export default function CreateSubjectPage() {
   const { getToken } = useAuth();
@@ -16,6 +17,9 @@ export default function CreateSubjectPage() {
     mentorId: "",
   });
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   useEffect(() => {
     getPublicMentors()
       .then((data) => setMentors(data.content))
@@ -23,7 +27,9 @@ export default function CreateSubjectPage() {
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     setForm((prev) => ({
       ...prev,
@@ -33,6 +39,9 @@ export default function CreateSubjectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setSuccessMessage("");
+    setErrorMessage("");
 
     try {
       const token = await getToken({ template: "skill-mentor" });
@@ -52,9 +61,11 @@ export default function CreateSubjectPage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create subject");
+      const data = await res.json().catch(() => null);
 
-      alert("Subject created successfully!");
+      if (!res.ok) throw new Error(data?.message || "Failed to create subject");
+
+      setSuccessMessage(data?.message || "Subject created successfully!");
       setForm({
         subjectName: "",
         description: "",
@@ -63,13 +74,21 @@ export default function CreateSubjectPage() {
       });
     } catch (error) {
       console.error(error);
-      alert("Failed to create subject");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to create subject",
+      );
+      // alert("
     }
   };
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Create Subject</h1>
+
+      <div className="space-y-3 mb-4">
+        <AlertMessage type="success" message={successMessage} />
+        <AlertMessage type="error" message={errorMessage} />
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 max-w-xl">
         <div className="space-y-2">

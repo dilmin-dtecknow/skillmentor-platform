@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import AlertMessage from "@/components/AlertMessage";
 
 export default function CreateMentorPage() {
   const { getToken } = useAuth();
@@ -23,19 +24,26 @@ export default function CreateMentorPage() {
     startYear: "",
   });
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target as HTMLInputElement;
 
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setSuccessMessage("");
+    setErrorMessage("");
 
     try {
       const token = await getToken({ template: "skill-mentor" });
@@ -53,12 +61,18 @@ export default function CreateMentorPage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create mentor");
+      const data = await res.json().catch(() => null);
 
-      alert("Mentor created successfully!");
+      if (!res.ok) throw new Error(data?.message || "Failed to create mentor");
+
+      // alert("Mentor created successfully!");
+      setSuccessMessage(data?.message || "Mentor created successfully!");
     } catch (error) {
       console.error(error);
-      alert("Failed to create mentor");
+      // alert("Failed to create mentor");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to create mentor",
+      );
     }
   };
 
@@ -66,30 +80,59 @@ export default function CreateMentorPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Create Mentor</h1>
 
+      <div className="space-y-3 mb-4">
+        <AlertMessage type="success" message={successMessage} />
+        <AlertMessage type="error" message={errorMessage} />
+      </div>
+
       <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label>Mentor ID</Label>
-          <Input name="mentorId" value={form.mentorId} onChange={handleChange} />
+          <Input
+            name="mentorId"
+            value={form.mentorId}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="space-y-2">
           <Label>First Name</Label>
-          <Input name="firstName" value={form.firstName} onChange={handleChange} required />
+          <Input
+            name="firstName"
+            value={form.firstName}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="space-y-2">
           <Label>Last Name</Label>
-          <Input name="lastName" value={form.lastName} onChange={handleChange} required />
+          <Input
+            name="lastName"
+            value={form.lastName}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="space-y-2">
           <Label>Email</Label>
-          <Input name="email" type="email" value={form.email} onChange={handleChange} required />
+          <Input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="space-y-2">
           <Label>Phone Number</Label>
-          <Input name="phoneNumber" value={form.phoneNumber} onChange={handleChange} />
+          <Input
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="space-y-2">
@@ -99,7 +142,11 @@ export default function CreateMentorPage() {
 
         <div className="space-y-2">
           <Label>Profession</Label>
-          <Input name="profession" value={form.profession} onChange={handleChange} />
+          <Input
+            name="profession"
+            value={form.profession}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="space-y-2">
@@ -128,7 +175,11 @@ export default function CreateMentorPage() {
 
         <div className="space-y-2">
           <Label>Start Year</Label>
-          <Input name="startYear" value={form.startYear} onChange={handleChange} />
+          <Input
+            name="startYear"
+            value={form.startYear}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="flex items-center gap-2 mt-8">
