@@ -8,13 +8,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "./ui/dialog";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import type { Mentor } from "@/types";
 
 interface SchedulingModalProps {
   isOpen: boolean;
   onClose: () => void;
   mentor: Mentor;
+  selectedSubjectId?: number;
 }
 
 const TIME_SLOTS = [
@@ -32,13 +33,16 @@ export function SchedulingModal({
   isOpen,
   onClose,
   mentor,
+  selectedSubjectId,
 }: SchedulingModalProps) {
   const [date, setDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>();
   const navigate = useNavigate();
 
   const mentorName = `${mentor.firstName} ${mentor.lastName}`;
-  const subject = mentor.subjects[0];
+  // const subject = mentor.subjects[0];
+  const subject =
+  mentor.subjects.find((s) => s.id === selectedSubjectId) ?? mentor.subjects[0];
 
   const handleSchedule = () => {
     if (date && selectedTime && subject) {

@@ -35,6 +35,9 @@ export default function ManageBookingsPage() {
 
       const data = await res.json().catch(() => null);
 
+      console.log("Fetched bookings:", data);
+      console.log("token:", token);
+
       if (!res.ok) throw new Error(data?.message || "Failed to fetch bookings");
 
       // const data = await res.json();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, useParams } from "react-router";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,7 +68,9 @@ export default function PaymentPage() {
       toast({
         title: "Error",
         description:
-          "There was a problem scheduling your session. Please try again.",
+          error instanceof Error
+            ? error.message
+            : "There was a problem scheduling your session. Please try again.",
         variant: "destructive",
       });
       setIsUploading(false);

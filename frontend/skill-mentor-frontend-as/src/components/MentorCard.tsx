@@ -13,6 +13,7 @@ import { SchedulingModal } from "@/components/SchedulingModel";
 import { SignupDialog } from "@/components/SignUpDialog";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-react";
+import { Link } from "react-router";
 
 interface MentorCardProps {
   mentor: Mentor;
@@ -133,12 +134,22 @@ export function MentorCard({ mentor }: MentorCardProps) {
           </div>
         </div>
 
-        <div className="p-6 pt-0">
+        <div className="p-6 pt-0 grid gap-2">
+          <Link to={`/mentors/${mentor.id}`}>
+            <Button variant="outline" className="w-full" type="submit">
+              View Profile
+            </Button>
+          </Link>
+
           <Button
             onClick={handleSchedule}
             className="w-full bg-black text-white hover:bg-black/90"
             disabled={!hasSubjects}
-            title={!hasSubjects ? "No courses available for this mentor yet" : undefined}
+            title={
+              !hasSubjects
+                ? "No courses available for this mentor yet"
+                : undefined
+            }
           >
             {hasSubjects ? "Schedule a session" : "No courses available"}
           </Button>
