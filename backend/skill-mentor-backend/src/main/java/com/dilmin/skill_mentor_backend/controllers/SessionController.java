@@ -30,8 +30,13 @@ public class SessionController extends AbstractController {
     private final SessionService sessionService;
 
     @GetMapping
-    public List<Session> getAllSessions() {
-        return sessionService.getAllSessions();
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    public ResponseEntity<List<SessionResponseDTO>> getAllSessions() {
+        List<Session> sessions = sessionService.getAllSessions();
+        List<SessionResponseDTO> response = sessions.stream()
+                .map(this::toSessionResponseDTO)
+                .collect(Collectors.toList());
+        return sendOkResponse(response);
     }
 
     @GetMapping("{id}")
@@ -119,6 +124,8 @@ public class SessionController extends AbstractController {
     private SessionResponseDTO toSessionResponseDTO(Session session) {
         SessionResponseDTO dto = new SessionResponseDTO();
         dto.setId(session.getId());
+        dto.setStudentName(session.getStudent().getFirstName() + " " + session.getStudent().getLastName());
+        dto.setStudentEmail(session.getStudent().getEmail());
         dto.setMentorName(session.getMentor().getFirstName() + " " + session.getMentor().getLastName());
         dto.setMentorProfileImageUrl(session.getMentor().getProfileImageUrl());
         dto.setSubjectName(session.getSubject().getSubjectName());

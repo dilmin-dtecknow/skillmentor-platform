@@ -7,6 +7,8 @@ import java.util.Date;
 @Data
 public class SessionResponseDTO {
     private Integer id;
+    private String studentName;
+    private String studentEmail;
     private String mentorName;
     private String mentorProfileImageUrl;
     private String subjectName;
