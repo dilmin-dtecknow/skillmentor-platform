@@ -32,6 +32,8 @@ export interface Mentor {
 // Modified to match with SessionResponseDTO (from GET /api/v1/sessions/my-sessions)
 export interface Enrollment {
   id: number;
+  studentName?: string;
+  studentEmail?: string;
   mentorName: string;
   mentorProfileImageUrl: string;
   subjectName: string;

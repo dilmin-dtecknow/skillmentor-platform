@@ -3,15 +3,25 @@ import { useAuth } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import AlertMessage from "@/components/AlertMessage";
 
+import {
+  addMeetingLink,
+  confirmPayment,
+  getAllBookings,
+  markSessionComplete,
+} from "@/lib/api";
+import { Input } from "@/components/ui/input";
+
 interface Booking {
   id: number;
+  studentName?: string;
+  studentEmail?: string;
   mentorName: string;
   subjectName: string;
   sessionAt: string;
   durationMinutes: number;
   paymentStatus: string;
   sessionStatus: string;
-  meetingLink?: string;
+  meetingLink?: string | null;
 }
 
 export default function ManageBookingsPage() {
@@ -22,27 +32,20 @@ export default function ManageBookingsPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [meetingLinkValue, setMeetingLinkValue] = useState("");
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
+    null,
+  );
+
   const fetchBookings = async () => {
     try {
+      setErrorMessage("");
       const token = await getToken({ template: "skill-mentor" });
       if (!token) throw new Error("No token found");
 
-      const res = await fetch("http://localhost:8080/api/v1/sessions", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json().catch(() => null);
-
-      console.log("Fetched bookings:", data);
-      console.log("token:", token);
-
-      if (!res.ok) throw new Error(data?.message || "Failed to fetch bookings");
-
-      // const data = await res.json();
+      const data = await getAllBookings(token);
       setBookings(data);
-      setSuccessMessage(data?.message || "Bookings fetched successfully!");
     } catch (error) {
       console.error(error);
       setErrorMessage(
@@ -64,31 +67,54 @@ export default function ManageBookingsPage() {
       const token = await getToken({ template: "skill-mentor" });
       if (!token) throw new Error("No token found");
 
-      const res = await fetch(
-        `http://localhost:8080/api/v1/sessions/${id}/${action}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      if (action === "confirm-payment") {
+        await confirmPayment(token, id);
+        setSuccessMessage("Payment confirmed successfully!");
+      } else {
+        await markSessionComplete(token, id);
+        setSuccessMessage("Session marked as completed!");
+      }
 
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) throw new Error(data?.message || "Failed to update booking");
-
-      setSuccessMessage(
-        action === "confirm-payment"
-          ? "Payment confirmed successfully!"
-          : "Session marked as completed!",
-      );
       fetchBookings();
     } catch (error) {
       console.error(error);
       setErrorMessage(error instanceof Error ? error.message : "Action failed");
     }
   };
+
+  const handleAddMeetingLink = async () => {
+    try {
+      if (!selectedBookingId || !meetingLinkValue.trim()) {
+        throw new Error("Please enter a meeting link");
+      }
+
+      setSuccessMessage("");
+      setErrorMessage("");
+
+      const token = await getToken({ template: "skill-mentor" });
+      if (!token) throw new Error("No token found");
+
+      await addMeetingLink(token, selectedBookingId, meetingLinkValue);
+
+      setSuccessMessage("Meeting link added successfully!");
+      setMeetingLinkValue("");
+      setSelectedBookingId(null);
+      fetchBookings();
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to add meeting link",
+      );
+    }
+  };
+
+  const filteredBookings = bookings.filter((booking) => {
+    const q = searchTerm.toLowerCase();
+    return (
+      booking.studentName?.toLowerCase().includes(q) ||
+      booking.mentorName?.toLowerCase().includes(q)
+    );
+  });
 
   useEffect(() => {
     fetchBookings();
@@ -107,11 +133,20 @@ export default function ManageBookingsPage() {
         <AlertMessage type="error" message={errorMessage} />
       </div>
 
+      <div className="mb-4">
+        <Input
+          placeholder="Search by student or mentor name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full border rounded-xl overflow-hidden">
           <thead className="bg-muted">
             <tr>
               <th className="text-left p-3">ID</th>
+              <th className="text-left p-3">Student</th>
               <th className="text-left p-3">Mentor</th>
               <th className="text-left p-3">Subject</th>
               <th className="text-left p-3">Date</th>
@@ -123,10 +158,11 @@ export default function ManageBookingsPage() {
           </thead>
 
           <tbody>
-            {bookings.map((booking) => (
+            {filteredBookings.map((booking) => (
               <tr key={booking.id} className="border-t">
                 <td className="p-3">{booking.id}</td>
-                <td className="p-3">{booking.mentorName}</td>
+                <td className="p-3">{booking.studentName ?? "N/A"}</td>
+                <td className="p-3">{booking.mentorName ?? "N/A"}</td>
                 <td className="p-3">{booking.subjectName}</td>
                 <td className="p-3">
                   {new Date(booking.sessionAt).toLocaleString()}
@@ -148,11 +184,41 @@ export default function ManageBookingsPage() {
                   >
                     Mark Complete
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedBookingId(booking.id)}
+                  >
+                    Add Meeting Link
+                  </Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {selectedBookingId && (
+          <div className="mt-6 rounded-xl border p-4 space-y-3">
+            <h2 className="font-semibold">Add Meeting Link</h2>
+            <Input
+              placeholder="Enter Google Meet / Zoom link"
+              value={meetingLinkValue}
+              onChange={(e) => setMeetingLinkValue(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button onClick={handleAddMeetingLink}>Save Link</Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelectedBookingId(null);
+                  setMeetingLinkValue("");
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
