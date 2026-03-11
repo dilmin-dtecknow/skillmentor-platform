@@ -3,13 +3,15 @@ package com.dilmin.skill_mentor_backend.services;
 import com.dilmin.skill_mentor_backend.dto.SessionDTO;
 import com.dilmin.skill_mentor_backend.entities.Session;
 import com.dilmin.skill_mentor_backend.security.UserPrincipal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface SessionService {
 
     Session createNewSession(SessionDTO sessionDTO);
-    List<Session> getAllSessions();
+    Page<Session> getAllSessions(Pageable pageable);
     Session getSessionById(Long id);
     Session updateSessionById(Long id, SessionDTO updatedSessionDTO);
     void deleteSession(Long id);

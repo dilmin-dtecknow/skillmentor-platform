@@ -8,6 +8,8 @@ import com.dilmin.skill_mentor_backend.security.UserPrincipal;
 import com.dilmin.skill_mentor_backend.services.SessionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,7 +20,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dilmin.skill_mentor_backend.constants.UserRoles.ROLE_ADMIN;
-import static com.dilmin.skill_mentor_backend.constants.UserRoles.ROLE_MENTOR;
 
 @RestController
 @RequestMapping(path = "/api/v1/sessions")
@@ -31,11 +32,9 @@ public class SessionController extends AbstractController {
 
     @GetMapping
     @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
-    public ResponseEntity<List<SessionResponseDTO>> getAllSessions() {
-        List<Session> sessions = sessionService.getAllSessions();
-        List<SessionResponseDTO> response = sessions.stream()
-                .map(this::toSessionResponseDTO)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<SessionResponseDTO>> getAllSessions(Pageable pageable) {
+        Page<Session> sessions = sessionService.getAllSessions(pageable);
+        Page<SessionResponseDTO> response = sessions.map(this::toSessionResponseDTO);
         return sendOkResponse(response);
     }
 

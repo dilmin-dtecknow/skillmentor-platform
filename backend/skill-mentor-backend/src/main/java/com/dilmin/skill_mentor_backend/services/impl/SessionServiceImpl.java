@@ -16,6 +16,8 @@ import com.dilmin.skill_mentor_backend.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -83,8 +85,8 @@ public class SessionServiceImpl implements SessionService {
 
     }
 
-    public List<Session> getAllSessions() {
-        return sessionRepository.findAll(); // SELECT * FROM sessions
+    public Page<Session> getAllSessions(Pageable pageable) {
+        return sessionRepository.findAll(pageable); // SELECT * FROM sessions
     }
 
     public Session getSessionById(Long id) {
