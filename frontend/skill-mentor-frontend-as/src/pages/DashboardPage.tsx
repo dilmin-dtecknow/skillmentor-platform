@@ -7,11 +7,49 @@ import type { Enrollment } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { isAdminFromToken } from "@/lib/auth";
 
+import { Button } from "@/components/ui/button";
+// import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/hooks/use-toast";
+import { addReview } from "@/lib/api";
+
 export default function DashboardPage() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const [reviewingId, setReviewingId] = useState<number | null>(null);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const { toast } = useToast();
+
+  const handleSubmitReview = async (sessionId: number) => {
+    try {
+      const token = await getToken({ template: "skill-mentor" });
+      if (!token) throw new Error("No token found");
+
+      await addReview(token, sessionId, reviewText, reviewRating);
+
+      toast({
+        title: "Review submitted",
+        description: "Your review was submitted successfully.",
+      });
+
+      setReviewingId(null);
+      setReviewText("");
+      setReviewRating(5);
+
+      const refreshed = await getMyEnrollments(token);
+      setEnrollments(refreshed);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to submit review",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     async function initPage() {
@@ -108,8 +146,87 @@ export default function DashboardPage() {
               </p>
               <div className="flex items-center text-blue-100/80 text-sm mt-2">
                 <CalendarDays className="mr-2 h-4 w-4" />
-                Next Session: {new Date(enrollment.sessionAt).toLocaleDateString()}
+                Next Session:{" "}
+                {new Date(enrollment.sessionAt).toLocaleDateString()}
               </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {enrollment.sessionStatus === "COMPLETED" &&
+                !enrollment.studentReview && (
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() =>
+                      setReviewingId((prev) =>
+                        prev === enrollment.id ? null : enrollment.id,
+                      )
+                    }
+                  >
+                    Write Review
+                  </Button>
+                )}
+
+              {enrollment.studentReview && (
+                <div className="rounded-xl bg-white/10 p-3 text-white">
+                  <p className="text-sm font-medium">Your Review</p>
+                  <p className="text-sm mt-1">{enrollment.studentReview}</p>
+                  <p className="text-xs mt-2">
+                    Rating: {enrollment.studentRating}/5
+                  </p>
+                </div>
+              )}
+
+              {reviewingId === enrollment.id && (
+                <div className="rounded-xl bg-white/10 p-3 space-y-3">
+                  <div>
+                    <label className="text-sm text-white">Rating</label>
+                    <select
+                      value={reviewRating}
+                      onChange={(e) => setReviewRating(Number(e.target.value))}
+                      className="w-full mt-1 rounded-md border p-2 text-black"
+                    >
+                      <option value={5}>5 - Excellent</option>
+                      <option value={4}>4 - Good</option>
+                      <option value={3}>3 - Average</option>
+                      <option value={2}>2 - Poor</option>
+                      <option value={1}>1 - Bad</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-white">Review</label>
+                    <textarea
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      rows={3}
+                      className="w-full mt-1 rounded-md border p-2 text-black"
+                      placeholder="Write your feedback..."
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      className="w-full"
+                      onClick={() => handleSubmitReview(enrollment.id)}
+                      disabled={!reviewText.trim()}
+                    >
+                      Submit Review
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setReviewingId(null);
+                        setReviewText("");
+                        setReviewRating(5);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

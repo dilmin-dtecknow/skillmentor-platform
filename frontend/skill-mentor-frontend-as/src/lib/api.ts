@@ -124,3 +124,19 @@ export async function addMeetingLink(
   );
   return res.json();
 }
+
+export async function addReview(
+  token: string,
+  id: number,
+  review: string,
+  rating: number,
+) {
+  const res = await fetchWithAuth(
+    `/api/v1/sessions/${id}/review?review=${encodeURIComponent(review)}&rating=${rating}`,
+    token,
+    {
+      method: "PATCH",
+    },
+  );
+  return res.json();
+}
