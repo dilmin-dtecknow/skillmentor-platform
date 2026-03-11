@@ -70,7 +70,7 @@ export function SchedulingModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-center space-y-0">
-          <DialogTitle>Schedule this session</DialogTitle>
+          <DialogTitle>Schedule {subject?.subjectName ?? "this session"}</DialogTitle>
           <DialogDescription className="sr-only">
             Pick a date and time for your mentoring session with {mentorName}.
           </DialogDescription>

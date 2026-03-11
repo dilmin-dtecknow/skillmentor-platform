@@ -3,7 +3,7 @@ import { MentorCard } from "@/components/MentorCard";
 import { getPublicMentors } from "@/lib/api";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import type { Mentor } from "@/types";
 
 export default function HomePage() {
@@ -11,10 +11,12 @@ export default function HomePage() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { user } = useUser();
+  // const { user } = useUser();
 
-  const dashboardPath =
-    user?.publicMetadata?.roles === "ADMIN" ? "/admin/bookings" : "/dashboard";
+  // const dashboardPath =
+  //   user?.publicMetadata?.roles === "ADMIN" ? "/admin/bookings" : "/dashboard";
+
+  const dashboardPath = "/redirect-after-auth";
 
   useEffect(() => {
     getPublicMentors()

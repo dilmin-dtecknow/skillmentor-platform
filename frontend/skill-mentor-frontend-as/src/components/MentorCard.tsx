@@ -13,7 +13,7 @@ import { SchedulingModal } from "@/components/SchedulingModel";
 import { SignupDialog } from "@/components/SignUpDialog";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 interface MentorCardProps {
   mentor: Mentor;

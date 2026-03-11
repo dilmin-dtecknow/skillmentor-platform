@@ -1,44 +1,68 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { getMentorProfile } from "@/lib/api";
 
-interface Subject {
-  id: number;
-  subjectName: string;
-  description: string;
-  courseImageUrl?: string;
-  enrollmentCount?: number;
-}
+import { SchedulingModal } from "@/components/SchedulingModel";
+import type { Mentor } from "@/types";
+// interface Subject {
+//   id: number;
+//   subjectName: string;
+//   description: string;
+//   courseImageUrl?: string;
+//   enrollmentCount?: number;
+// }
 
-interface MentorProfile {
-  id: number;
-  firstName: string;
-  lastName: string;
-  title?: string;
-  profession?: string;
-  company?: string;
-  bio?: string;
-  profileImageUrl?: string;
-  isCertified?: boolean;
-  startYear?: string;
-  experienceYears?: number;
-  averageRating?: number;
-  reviewCount?: number;
-  subjects?: Subject[];
-}
+// interface MentorProfile {
+//   id: number;
+//   firstName: string;
+//   lastName: string;
+//   title?: string;
+//   profession?: string;
+//   company?: string;
+//   bio?: string;
+//   profileImageUrl?: string;
+//   isCertified?: boolean;
+//   startYear?: string;
+//   experienceYears?: number;
+//   averageRating?: number;
+//   reviewCount?: number;
+//   subjects?: Subject[];
+// }
 
 export default function MentorProfilePage() {
   const { mentorId } = useParams();
-  const [mentor, setMentor] = useState<MentorProfile | null>(null);
+  const [mentor, setMentor] = useState<Mentor | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [isSchedulingModalOpen, setIsSchedulingModalOpen] = useState(false);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<
+    number | undefined
+  >();
+
+  // useEffect(() => {
+  //   async function fetchMentor() {
+  //     try {
+  //       const res = await fetch(`http://localhost:8080/api/v1/mentors/${mentorId}`);
+  //       if (!res.ok) throw new Error("Failed to fetch mentor");
+  //       const data = await res.json();
+  //       setMentor(data.data ?? data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+
+  //   fetchMentor();
+  // }, [mentorId]);
 
   useEffect(() => {
     async function fetchMentor() {
       try {
-        const res = await fetch(`http://localhost:8080/api/v1/mentors/${mentorId}`);
-        if (!res.ok) throw new Error("Failed to fetch mentor");
-        const data = await res.json();
-        setMentor(data.data ?? data);
+        if (!mentorId) return;
+        const data = await getMentorProfile(mentorId);
+        setMentor(data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -82,9 +106,7 @@ export default function MentorProfilePage() {
             {mentor.title} {mentor.company ? `• ${mentor.company}` : ""}
           </p>
 
-          <p className="text-muted-foreground">
-            {mentor.profession}
-          </p>
+          <p className="text-muted-foreground">{mentor.profession}</p>
 
           {mentor.isCertified && (
             <span className="inline-block rounded-full bg-green-100 text-green-700 px-3 py-1 text-sm">
@@ -95,7 +117,9 @@ export default function MentorProfilePage() {
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border p-4">
               <p className="text-sm text-muted-foreground">Experience</p>
-              <p className="text-xl font-semibold">{mentor.experienceYears ?? 0} years</p>
+              <p className="text-xl font-semibold">
+                {mentor.experienceYears ?? 0} years
+              </p>
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-sm text-muted-foreground">Rating</p>
@@ -105,7 +129,9 @@ export default function MentorProfilePage() {
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-sm text-muted-foreground">Since</p>
-              <p className="text-xl font-semibold">{mentor.startYear ?? "N/A"}</p>
+              <p className="text-xl font-semibold">
+                {mentor.startYear ?? "N/A"}
+              </p>
             </div>
           </div>
         </div>
@@ -113,7 +139,9 @@ export default function MentorProfilePage() {
 
       <section className="space-y-3">
         <h2 className="text-2xl font-bold">About</h2>
-        <p className="text-muted-foreground">{mentor.bio || "No bio available."}</p>
+        <p className="text-muted-foreground">
+          {mentor.bio || "No bio available."}
+        </p>
       </section>
 
       <section className="space-y-4">
@@ -121,7 +149,10 @@ export default function MentorProfilePage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {mentor.subjects?.map((subject) => (
-            <div key={subject.id} className="rounded-2xl border overflow-hidden">
+            <div
+              key={subject.id}
+              className="rounded-2xl border overflow-hidden"
+            >
               {subject.courseImageUrl && (
                 <img
                   src={subject.courseImageUrl}
@@ -131,16 +162,37 @@ export default function MentorProfilePage() {
               )}
               <div className="p-4 space-y-2">
                 <h3 className="text-lg font-semibold">{subject.subjectName}</h3>
-                <p className="text-sm text-muted-foreground">{subject.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {subject.description}
+                </p>
                 <p className="text-sm font-medium">
                   {subject.enrollmentCount ?? 0} students enrolled
                 </p>
-                <Button className="w-full">Book Session</Button>
+
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setSelectedSubjectId(subject.id);
+                    setIsSchedulingModalOpen(true);
+                  }}
+                >
+                  Book Session
+                </Button>
               </div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* Scheduling Modal */}
+      {mentor && (
+        <SchedulingModal
+          isOpen={isSchedulingModalOpen}
+          onClose={() => setIsSchedulingModalOpen(false)}
+          mentor={mentor as never}
+          selectedSubjectId={selectedSubjectId}
+        />
+      )}
     </div>
   );
 }

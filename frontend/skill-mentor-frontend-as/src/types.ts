@@ -25,7 +25,7 @@ export interface Mentor {
   isCertified: boolean;
   startYear: string;
   averageRating?: number;
-  reviewsCount?: number;
+  reviewCount?: number;
   subjects: Subject[];
 }
 
@@ -40,7 +40,7 @@ export interface Enrollment {
   sessionAt: string;
   durationMinutes: number;
   sessionStatus: string;
-  paymentStatus: "pending" | "accepted" | "completed" | "cancelled";
+  paymentStatus: "pending" | "confirmed" | "completed" | "cancelled";
   meetingLink: string | null;
   studentReview?: string | null;
   studentRating?: number | null;
