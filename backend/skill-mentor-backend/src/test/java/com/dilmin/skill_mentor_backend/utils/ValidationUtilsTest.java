@@ -1,9 +1,9 @@
 package com.dilmin.skill_mentor_backend.utils;
 
-import com.stemlink.skillmentor.entities.Mentor;
-import com.stemlink.skillmentor.entities.Session;
-import com.stemlink.skillmentor.entities.Student;
-import com.stemlink.skillmentor.exceptions.SkillMentorException;
+import com.dilmin.skill_mentor_backend.entities.Mentor;
+import com.dilmin.skill_mentor_backend.entities.Session;
+import com.dilmin.skill_mentor_backend.entities.Student;
+import com.dilmin.skill_mentor_backend.exceptions.SkillMentorException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
