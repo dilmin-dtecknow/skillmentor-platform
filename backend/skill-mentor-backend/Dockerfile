@@ -11,4 +11,4 @@ RUN mvn package -DskipTests
 EXPOSE ${PORT:-8081}
 
 # Run the application directly from the target folder
-ENTRYPOINT ["java", "-jar", "target/skillmentor-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "target/skill-mentor-backend-0.0.1-SNAPSHOT.jar"]
