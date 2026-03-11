@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MentorCard } from "@/components/MentorCard";
 import { getPublicMentors } from "@/lib/api";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@clerk/clerk-react";
 import type { Mentor } from "@/types";

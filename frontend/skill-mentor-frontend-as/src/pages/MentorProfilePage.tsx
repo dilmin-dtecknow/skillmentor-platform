@@ -114,7 +114,7 @@ export default function MentorProfilePage() {
             </span>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-4">
             <div className="rounded-xl border p-4">
               <p className="text-sm text-muted-foreground">Experience</p>
               <p className="text-xl font-semibold">
@@ -131,6 +131,19 @@ export default function MentorProfilePage() {
               <p className="text-sm text-muted-foreground">Since</p>
               <p className="text-xl font-semibold">
                 {mentor.startYear ?? "N/A"}
+              </p>
+            </div>
+            <div className="rounded-xl border p-4">
+              <p className="text-sm text-muted-foreground">Subjects</p>
+              <p className="text-xl font-semibold">
+                {mentor.subjectsCount ?? mentor.subjects?.length ?? 0}
+              </p>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <p className="text-sm text-muted-foreground">Positive Reviews</p>
+              <p className="text-xl font-semibold">
+                {mentor.positiveReviewPercentage ?? 0}%
               </p>
             </div>
           </div>
@@ -184,12 +197,41 @@ export default function MentorProfilePage() {
         </div>
       </section>
 
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold">Student Reviews</h2>
+
+        {!mentor.reviews || mentor.reviews.length === 0 ? (
+          <div className="rounded-xl border p-4 text-muted-foreground">
+            No reviews available yet.
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {mentor.reviews.map((review) => (
+              <div
+                key={review.sessionId}
+                className="rounded-2xl border p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">{review.studentName}</h3>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(review.sessionAt).toLocaleDateString()}
+                  </span>
+                </div>
+
+                <p className="text-sm font-medium">Rating: {review.rating}/5</p>
+                <p className="text-sm text-muted-foreground">{review.review}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Scheduling Modal */}
       {mentor && (
         <SchedulingModal
           isOpen={isSchedulingModalOpen}
           onClose={() => setIsSchedulingModalOpen(false)}
-          mentor={mentor as never}
+          mentor={mentor}
           selectedSubjectId={selectedSubjectId}
         />
       )}

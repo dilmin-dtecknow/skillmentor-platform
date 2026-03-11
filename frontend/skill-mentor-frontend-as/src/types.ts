@@ -27,6 +27,9 @@ export interface Mentor {
   averageRating?: number;
   reviewCount?: number;
   subjects: Subject[];
+  reviews?: Review[];
+  subjectsCount?: number;
+  positiveReviewPercentage?: number;
 }
 
 // Modified to match with SessionResponseDTO (from GET /api/v1/sessions/my-sessions)
@@ -50,4 +53,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
+}
+
+export interface Review {
+  sessionId: number;
+  studentName: string;
+  review: string;
+  rating: number;
+  sessionAt: string;
 }
