@@ -41,6 +41,10 @@ export default function ManageBookingsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("latest");
+
   const fetchBookings = async (page = 0) => {
     try {
       setErrorMessage("");
@@ -51,6 +55,9 @@ export default function ManageBookingsPage() {
       setBookings(data.content);
       setTotalPages(data.totalPages);
       setCurrentPage(data.number + 1);
+
+      // console.log("Fetched bookings:", data);
+      // console.log("Current page:", data.number + 1);
     } catch (error) {
       console.error(error);
       setErrorMessage(
@@ -113,13 +120,31 @@ export default function ManageBookingsPage() {
     }
   };
 
-  const filteredBookings = bookings.filter((booking) => {
-    const q = searchTerm.toLowerCase();
-    return (
-      booking.studentName?.toLowerCase().includes(q) ||
-      booking.mentorName?.toLowerCase().includes(q)
-    );
-  });
+  const filteredBookings = bookings
+    .filter((booking) => {
+      const q = searchTerm.toLowerCase();
+
+      const matchesSearch =
+        (booking.studentName ?? "").toLowerCase().includes(q) ||
+        booking.mentorName.toLowerCase().includes(q);
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        booking.paymentStatus.toLowerCase() === statusFilter.toLowerCase() ||
+        booking.sessionStatus.toLowerCase() === statusFilter.toLowerCase();
+
+      const matchesDate =
+        !dateFilter ||
+        new Date(booking.sessionAt).toISOString().slice(0, 10) === dateFilter;
+
+      return matchesSearch && matchesStatus && matchesDate;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.sessionAt).getTime();
+      const dateB = new Date(b.sessionAt).getTime();
+
+      return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
+    });
 
   useEffect(() => {
     fetchBookings();
@@ -138,12 +163,53 @@ export default function ManageBookingsPage() {
         <AlertMessage type="error" message={errorMessage} />
       </div>
 
-      <div className="mb-4">
+      <div className="grid gap-4 mb-4 md:grid-cols-4">
         <Input
           placeholder="Search by student or mentor name"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="w-full rounded-md border p-2 bg-background"
+        >
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="scheduled">Scheduled</option>
+        </select>
+
+        <Input
+          type="date"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+        />
+
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+          className="w-full rounded-md border p-2 bg-background"
+        >
+          <option value="latest">Latest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSearchTerm("");
+            setStatusFilter("all");
+            setDateFilter("");
+            setSortOrder("latest");
+          }}
+        >
+          Reset Filters
+        </Button>
       </div>
 
       <div className="overflow-x-auto">
