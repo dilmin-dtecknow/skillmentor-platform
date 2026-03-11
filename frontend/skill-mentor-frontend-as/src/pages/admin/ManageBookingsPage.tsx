@@ -208,6 +208,7 @@ export default function ManageBookingsPage() {
               variant="outline"
               disabled={currentPage === 1}
               onClick={() => fetchBookings(currentPage - 2)}
+              className="cursor-pointer"
             >
               Previous
             </Button>
@@ -220,6 +221,7 @@ export default function ManageBookingsPage() {
               variant="outline"
               disabled={currentPage === totalPages}
               onClick={() => fetchBookings(currentPage)}
+              className="cursor-pointer"
             >
               Next
             </Button>
