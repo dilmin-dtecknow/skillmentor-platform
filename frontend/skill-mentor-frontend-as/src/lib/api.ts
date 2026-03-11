@@ -91,8 +91,20 @@ export async function createMentor(token: string, data: Record<string, unknown>)
   return res.json();
 }
 
-export async function getAllBookings(token: string): Promise<Enrollment[]> {
-  const res = await fetchWithAuth("/api/v1/sessions", token);
+export async function getAllBookings(
+  token: string,
+  page = 0,
+  size = 5,
+): Promise<{
+  content: Enrollment[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+}> {
+  const res = await fetchWithAuth(
+    `/api/v1/sessions?page=${page}&size=${size}`,
+    token,
+  );
   return res.json();
 }
 

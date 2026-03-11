@@ -38,14 +38,19 @@ export default function ManageBookingsPage() {
     null,
   );
 
-  const fetchBookings = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchBookings = async (page = 0) => {
     try {
       setErrorMessage("");
       const token = await getToken({ template: "skill-mentor" });
       if (!token) throw new Error("No token found");
 
-      const data = await getAllBookings(token);
-      setBookings(data);
+      const data = await getAllBookings(token, page, 5);
+      setBookings(data.content);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.number + 1);
     } catch (error) {
       console.error(error);
       setErrorMessage(
@@ -196,6 +201,30 @@ export default function ManageBookingsPage() {
             ))}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-6">
+            <Button
+              variant="outline"
+              disabled={currentPage === 1}
+              onClick={() => fetchBookings(currentPage - 2)}
+            >
+              Previous
+            </Button>
+
+            <span className="flex items-center px-3 text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              disabled={currentPage === totalPages}
+              onClick={() => fetchBookings(currentPage)}
+            >
+              Next
+            </Button>
+          </div>
+        )}
 
         {selectedBookingId && (
           <div className="mt-6 rounded-xl border p-4 space-y-3">
