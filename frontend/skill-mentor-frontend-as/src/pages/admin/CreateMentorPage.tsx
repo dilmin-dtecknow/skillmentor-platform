@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AlertMessage from "@/components/AlertMessage";
+import { createMentor } from "@/lib/api";
 
 export default function CreateMentorPage() {
   const { getToken } = useAuth();
@@ -87,21 +88,25 @@ export default function CreateMentorPage() {
 
       if (!checkRequiredFields()) return;
 
-      const res = await fetch("http://localhost:8080/api/v1/mentors", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...form,
-          experienceYears: Number(form.experienceYears),
-        }),
+      // const res = await fetch("http://localhost:8080/api/v1/mentors", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     ...form,
+      //     experienceYears: Number(form.experienceYears),
+      //   }),
+      // });
+
+      // const data = await res.json().catch(() => null);
+      const data = await createMentor(token, {
+        ...form,
+        experienceYears: Number(form.experienceYears),
       });
 
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) throw new Error(data?.message || "Failed to create mentor");
+      if (!data.res.ok) throw new Error(data?.message || "Failed to create mentor");
 
       // alert("Mentor created successfully!");
       setSuccessMessage(data?.message || "Mentor created successfully!");

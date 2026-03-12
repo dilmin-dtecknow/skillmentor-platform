@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { getPublicMentors } from "@/lib/api";
+import { createSubject, getPublicMentors } from "@/lib/api";
 import type { Mentor } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,23 +65,29 @@ export default function CreateSubjectPage() {
 
       if (!checkRequiredFields()) return;
 
-      const res = await fetch("http://localhost:8080/api/v1/subjects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          subjectName: form.subjectName,
-          description: form.description,
-          courseImageUrl: form.courseImageUrl,
-          mentorId: Number(form.mentorId),
-        }),
+      // const res = await fetch("http://localhost:8080/api/v1/subjects", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     subjectName: form.subjectName,
+      //     description: form.description,
+      //     courseImageUrl: form.courseImageUrl,
+      //     mentorId: Number(form.mentorId),
+      //   }),
+      // });
+
+      // const data = await res.json().catch(() => null);
+      const data = await createSubject(token, {
+        subjectName: form.subjectName,
+        description: form.description,
+        courseImageUrl: form.courseImageUrl,
+        mentorId: Number(form.mentorId),
       });
 
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) throw new Error(data?.message || "Failed to create subject");
+      if (!data.res.ok) throw new Error(data?.message || "Failed to create subject");
 
       setSuccessMessage(data?.message || "Subject created successfully!");
       setForm({
