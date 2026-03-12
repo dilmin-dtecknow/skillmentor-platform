@@ -106,7 +106,7 @@ export default function CreateMentorPage() {
         experienceYears: Number(form.experienceYears),
       });
 
-      if (!data.res.ok) throw new Error(data?.message || "Failed to create mentor");
+      if (!data.success) throw new Error(data?.message || "Failed to create mentor");
 
       // alert("Mentor created successfully!");
       setSuccessMessage(data?.message || "Mentor created successfully!");
