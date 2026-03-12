@@ -87,7 +87,7 @@ export default function CreateSubjectPage() {
         mentorId: Number(form.mentorId),
       });
 
-      if (!data.success) throw new Error(data?.message || "Failed to create subject");
+      // if (!data.success) throw new Error(data?.message || "Failed to create subject");
 
       setSuccessMessage(data?.message || "Subject created successfully!");
       setForm({
