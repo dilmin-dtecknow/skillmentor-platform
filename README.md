@@ -89,7 +89,7 @@ FRONTEND_URL=your_frontend_url
 ### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/dilmin-dtecknow/skillmentor-platform.git](https://github.com/dilmin-dtecknow/skillmentor-platform.git)
+git clone https://github.com/dilmin-dtecknow/skillmentor-platform.git
 cd skillmentor-platform
 
 ```
@@ -121,13 +121,27 @@ cd backend/skill-mentor-backend
 * `GET /api/v1/mentors/{id}` - Get detailed profile
 * `POST /api/v1/mentors` - Create mentor (**Admin Only**)
 
+### Subject Endpoints
+
+* `POST /api/v1/subjects` - Create subject (**Admin only**)
+
 ### Session Endpoints
 
 * `POST /api/v1/sessions/enroll` - Enroll in a session
 * `GET /api/v1/sessions/my-sessions` - Student dashboard data
+* `GET /api/v1/sessions` - Get all bookings (**Admin only**)
 * `PATCH /api/v1/sessions/{id}/confirm-payment` - Confirm payment (**Admin Only**)
 * `PATCH /api/v1/sessions/{id}/complete` - Mark session finished (**Admin Only**)
+* `PATCH /api/v1/sessions/{id}/meeting-link` - Add meeting link (**Admin only**)
 * `PATCH /api/v1/sessions/{id}/review` - Submit session feedback
+
+---
+
+## 🔏 Authentication & Authorization 
+### This project uses Clerk for authentication and role-based access control.
+* Students can access booking and dashboard features
+* Admins can access /admin/* routes
+* JWT template includes role claims used by the backend
 
 ---
 
