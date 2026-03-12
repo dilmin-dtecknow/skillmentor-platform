@@ -75,10 +75,8 @@ PORT=8080
 DATABASE_URL=your_database_url
 DB_USERNAME=your_database_username
 DB_PASSWORD=your_database_password
-CLERK_ISSUER_URL=your_clerk_issuer_url
 CLERK_JWKS_URL=your_clerk_jwks_url
-CLERK_AUDIENCE=skill-mentor
-FRONTEND_URL=your_frontend_url
+CORS_ALLOWED_ORIGINS=your_frontend_url
 
 ```
 
