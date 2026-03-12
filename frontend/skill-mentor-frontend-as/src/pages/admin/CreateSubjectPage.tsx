@@ -37,6 +37,22 @@ export default function CreateSubjectPage() {
     }));
   };
 
+  const checkRequiredFields = () => {
+    if (form.subjectName.trim() === "") {
+      setErrorMessage("Subject name is required");
+      return false;
+    }
+    if (form.description.trim() === "") {
+      setErrorMessage("Description is required");
+      return false;
+    }
+    if (form.mentorId.trim() === "") {
+      setErrorMessage("Mentor selection is required");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -46,6 +62,8 @@ export default function CreateSubjectPage() {
     try {
       const token = await getToken({ template: "skill-mentor" });
       if (!token) throw new Error("No token found");
+
+      if (!checkRequiredFields()) return;
 
       const res = await fetch("http://localhost:8080/api/v1/subjects", {
         method: "POST",

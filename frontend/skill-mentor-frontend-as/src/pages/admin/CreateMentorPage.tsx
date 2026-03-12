@@ -39,6 +39,42 @@ export default function CreateMentorPage() {
     }));
   };
 
+  const checkRequiredFields = () => {
+    if (form.mentorId.trim() === "") {
+      setErrorMessage("Mentor ID is required");
+      return false;
+    }
+    if (form.firstName.trim() === "") {
+      setErrorMessage("First name is required");
+      return false;
+    }
+    if (form.lastName.trim() === "") {
+      setErrorMessage("Last name is required");
+      return false;
+    }
+    if (form.email.trim() === "") {
+      setErrorMessage("Email is required");
+      return false;
+    }
+    if (form.title.trim() === "") {
+      setErrorMessage("Title is required");
+      return false;
+    }
+    if (form.profession.trim() === "") {
+      setErrorMessage("Profession is required");
+      return false;
+    }
+    if (form.experienceYears.trim() === "") {
+      setErrorMessage("Experience years is required");
+      return false;
+    }
+    if (form.bio.trim() === "") {
+      setErrorMessage("Bio is required");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -48,6 +84,8 @@ export default function CreateMentorPage() {
     try {
       const token = await getToken({ template: "skill-mentor" });
       if (!token) throw new Error("No token found");
+
+      if (!checkRequiredFields()) return;
 
       const res = await fetch("http://localhost:8080/api/v1/mentors", {
         method: "POST",
@@ -92,6 +130,7 @@ export default function CreateMentorPage() {
             name="mentorId"
             value={form.mentorId}
             onChange={handleChange}
+            required
           />
         </div>
 
