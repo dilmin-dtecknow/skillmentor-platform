@@ -72,7 +72,7 @@ export default function DashboardPage() {
 
         const token = await getToken({ template: "skill-mentor" });
 
-        console.log("Clerk token:", token);
+        // console.log("Clerk token:", token);
         if (!token) {
           console.error("No Clerk token found");
           setLoading(false);
