@@ -60,6 +60,10 @@ VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 VITE_API_BASE_URL=your_backend_base_url
 
 ```
+Please confirm your clerk's Template is 
+``` 
+const token = await getToken({ template: "skill-mentor" });
+```
 
 ### Backend
 
