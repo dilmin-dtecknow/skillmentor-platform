@@ -155,7 +155,7 @@ cd backend/skill-mentor-backend
 ## 👤 Author
 
 **Dilmin Fernando**
-
+**Email- dtharusha0322@gmail.com**
 ```
 
 
